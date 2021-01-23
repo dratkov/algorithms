@@ -1237,7 +1237,7 @@ func sliceIntToBT(arr []*int) *TreeNode {
 }
 
 func createNodeBTWithChild(arr []*int, idx *int) *TreeNode {
-	if idx == nil || *idx < 0 || *idx + 2 >= len(arr) || arr[*idx] == nil {
+	if idx == nil || *idx < 0 || *idx >= len(arr) || arr[*idx] == nil {
 		return nil
 	}
 	node := &TreeNode {
@@ -1245,6 +1245,9 @@ func createNodeBTWithChild(arr []*int, idx *int) *TreeNode {
 	}
 
 	*idx++
+	if *idx >= len(arr) {
+		return node
+	}
 	left := &TreeNode{}
 	if v := arr[*idx]; v != nil {
 		left.Val = *v
@@ -1252,17 +1255,28 @@ func createNodeBTWithChild(arr []*int, idx *int) *TreeNode {
 	}
 
 	*idx++
+	if *idx >= len(arr) {
+		return node
+	}
 	right := &TreeNode{}
 	if v := arr[*idx]; v != nil {
 		right.Val = *v
 		node.Right = right
 	}
 
-	left.Left = createNodeBTWithChild(arr, idx)
-	left.Right = createNodeBTWithChild(arr, idx)
+	if node.Left != nil {
+		*idx++
+		left.Left = createNodeBTWithChild(arr, idx)
+		*idx++
+		left.Right = createNodeBTWithChild(arr, idx)
+	}
 
-	right.Left = createNodeBTWithChild(arr, idx)
-	right.Right = createNodeBTWithChild(arr, idx)
+	if node.Right != nil {
+		*idx++
+		right.Left = createNodeBTWithChild(arr, idx)
+		*idx++
+		right.Right = createNodeBTWithChild(arr, idx)
+	}
 
 	return node
 }
@@ -1271,19 +1285,20 @@ func isValidBST(root *TreeNode) bool {
 	if root == nil {
 		return false
 	}
-	if root.Left != nil {
-		if root.Left.Val > root.Val {
-			return false
-		}
-		if !isValidBST(root.Left) {
+	left, right := []int{root.Val}, []int{root.Val}
+
+	collectLeftOrRight(root.Left, &left)
+	collectLeftOrRight(root.Right, &right)
+
+	fmt.Println(left, "left")
+	fmt.Println(right, "right")
+	for idx, l := range left {
+		if idx > 0 && l > left[idx-1] {
 			return false
 		}
 	}
-	if root.Right != nil {
-		if root.Right.Val < root.Val {
-			return false
-		}
-		if !isValidBST(root.Right) {
+	for idx, r := range right {
+		if idx > 0 && r < left[idx-1] {
 			return false
 		}
 	}
@@ -1291,17 +1306,35 @@ func isValidBST(root *TreeNode) bool {
 	return true
 }
 
+func collectLeftOrRight(root *TreeNode, arr *[]int) {
+	if root == nil {
+		return
+	}
+	if root.Left == nil && root.Right == nil {
+		*arr = append(*arr, root.Val)
+		return
+	}
+	if root.Left != nil {
+		collectLeftOrRight(root.Left, arr)
+	}
+
+	if root.Right != nil {
+		collectLeftOrRight(root.Right, arr)
+	}
+
+	*arr = append(*arr, root.Val)
+}
+
 func traverBT(root *TreeNode) {
 	if root == nil {
 		return
 	}
-	fmt.Println(root.Val)
 	if root.Left != nil {
-		//fmt.Println("left")
+		fmt.Println("left", root.Left.Val)
 		traverBT(root.Left)
 	}
 	if root.Right != nil {
-		//fmt.Println("right")
+		fmt.Println("right", root.Right.Val)
 		traverBT(root.Right)
 	}
 }
@@ -1328,21 +1361,38 @@ func i(n int) *int {
 	return &n
 }
 
+func app(arr *[]int) {
+	*arr = append(*arr, 1)
+}
+
 func main() {
+	arr := []int{}
+	fmt.Println(arr)
+	for i := 0; i < 20; i++ {
+		app(&arr)
+	}
+	fmt.Println(arr)
 	//sliceIntToBT([]int{5,1,4,nil,nil,3,6})
 	//for _, a := range []*int{i(5),i(1),i(4),nil,nil,i(3),i(6)} {
 	//	fmt.Println(a)
 	//}
-	idx := 0
-	tree := createNodeBTWithChild([]*int{i(2),i(1),i(3)}, &idx)
-	idx2 := 0
-	tree2 := createNodeBTWithChild([]*int{i(5),i(1),i(4),nil,nil,i(3),i(6)}, &idx2)
+	//idx := 0
+	//tree := createNodeBTWithChild([]*int{i(2),i(1),i(3)}, &idx)
+	//idx2 := 0
+	//tree2 := createNodeBTWithChild([]*int{i(5),i(1),i(4),nil,nil,i(3),i(6)}, &idx2)
+	idx3 := 0
+	tree3 := createNodeBTWithChild([]*int{i(3),i(1),i(4),nil,nil,i(2)}, &idx3)
+	idx4 := 0
+	tree4 := createNodeBTWithChild([]*int{i(2),i(1),i(4),nil,nil,i(3)}, &idx4)
 
-	fmt.Println(isValidBST(tree))
-	fmt.Println(isValidBST(tree2))
+	//fmt.Println(isValidBST(tree))
+	//fmt.Println(isValidBST(tree2))
+	fmt.Println(isValidBST(tree3), "valid")
+	fmt.Println(isValidBST(tree4), "valid")
 	//res := createNodeBTWithChild([]*int{i(5),i(1),i(4),nil,nil,i(3),i(6)}, &idx)
 
-	traverBT(tree)
+	traverBT(tree3)
+	traverBT(tree4)
 
 	//fmt.Println(minWindow("ADOBECODEBANC", "ABC"))
 	/*

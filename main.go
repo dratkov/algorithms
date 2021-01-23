@@ -1306,6 +1306,25 @@ func isValidBST(root *TreeNode) bool {
 	return true
 }
 
+func getSortedSliceByBST(root *TreeNode, arr *[]int) {
+	if root == nil {
+		return
+	}
+	if root.Left == nil && root.Right == nil {
+		*arr = append(*arr, root.Val)
+		return
+	}
+	if root.Left != nil {
+		collectLeftOrRight(root.Left, arr)
+	}
+
+	*arr = append(*arr, root.Val)
+
+	if root.Right != nil {
+		collectLeftOrRight(root.Right, arr)
+	}
+}
+
 func collectLeftOrRight(root *TreeNode, arr *[]int) {
 	if root == nil {
 		return
@@ -1393,6 +1412,10 @@ func main() {
 
 	traverBT(tree3)
 	traverBT(tree4)
+
+	var sorted []int
+	getSortedSliceByBST(tree4, &sorted)
+	fmt.Println(sorted)
 
 	//fmt.Println(minWindow("ADOBECODEBANC", "ABC"))
 	/*

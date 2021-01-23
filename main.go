@@ -1288,15 +1288,13 @@ func isValidBST(root *TreeNode) bool {
 	left, right := []int{root.Val}, []int{root.Val}
 
 	collectLeftOrRight(root.Left, &left)
-	collectLeftOrRight(root.Right, &right)
-
-	fmt.Println(left, "left")
-	fmt.Println(right, "right")
 	for idx, l := range left {
 		if idx > 0 && l > left[idx-1] {
 			return false
 		}
 	}
+
+	collectLeftOrRight(root.Right, &right)
 	for idx, r := range right {
 		if idx > 0 && r < left[idx-1] {
 			return false

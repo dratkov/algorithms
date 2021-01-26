@@ -1217,20 +1217,31 @@ func sliceIntToBT(arr []*int) *TreeNode {
 	head := &TreeNode{
 		Val: *arr[0],
 	}
-	prev := head
+	//prev := head
+	prevs := []*TreeNode{head}
 	for i := 1; i < len(arr); i += 2 {
+		//l := len(prevs)
+		prev := prevs[0]
+		fmt.Println(prev.Val, i, "++++")
 		if v := arr[i]; v != nil {
 			left := &TreeNode{
 				Val: *v,
 			}
 			prev.Left = left
+			prevs = append(prevs, left)
 		}
 		if v := arr[i+1]; v != nil {
-			rigth := &TreeNode{
+			right := &TreeNode{
 				Val: *v,
 			}
-			prev.Right = rigth
+			prev.Right = right
+			prevs = append(prevs, right)
 		}
+		for _, p := range prevs {
+			fmt.Println(p.Val, "v")
+		}
+		fmt.Println("====")
+		prevs = prevs[1:]
 	}
 
 	return head
@@ -1346,6 +1357,10 @@ func traverBT(root *TreeNode) {
 	if root == nil {
 		return
 	}
+	if root.Left != nil || root.Right != nil {
+		fmt.Println("root", root.Val)
+	}
+
 	if root.Left != nil {
 		fmt.Println("left", root.Left.Val)
 		traverBT(root.Left)
@@ -1382,13 +1397,130 @@ func app(arr *[]int) {
 	*arr = append(*arr, 1)
 }
 
-func main() {
-	arr := []int{}
-	fmt.Println(arr)
-	for i := 0; i < 20; i++ {
-		app(&arr)
+type sliceToBST struct {
+	idx int
+	val int
+	isNil bool
+	left []int
+	right []int
+}
+
+func sortedArrayToBST(nums []int) *TreeNode {
+	result := make([]*int, 0, int(float64(len(nums)) * 1.5))
+	mid := len(nums) / 2
+	intermediateResult := make([]sliceToBST, 0, len(nums) / 2)
+
+	intermediateResult = append(intermediateResult, sliceToBST{
+		idx: mid,
+		val: nums[mid],
+		left: nums[:mid],
+		right: nums[mid+1:],
+	})
+
+	for {
+		l := len(intermediateResult)
+		if l == 0 {
+			break
+		}
+		for i := 0; i < l; i++ {
+			res := intermediateResult[i]
+			if res.isNil {
+				result = append(result, nil)
+			} else {
+				val := res.val
+				result = append(result, &val)
+			}
+			if len(res.left) > 0 {
+				mid := len(res.left) / 2
+				intermediateResult = append(intermediateResult, sliceToBST{
+					idx: mid,
+					val: res.left[mid],
+					left: res.left[:mid],
+					right: res.left[mid+1:],
+				})
+			}
+			if len(res.right) > 0 {
+				mid := len(res.right) / 2
+				intermediateResult = append(intermediateResult, sliceToBST{
+					idx: mid,
+					val: res.right[mid],
+					left: res.right[:mid],
+					right: res.right[mid+1:],
+				})
+			} else if len(res.left) > 0 {
+				intermediateResult = append(intermediateResult, sliceToBST{
+					isNil: true,
+				})
+			}
+		}
+		intermediateResult = intermediateResult[l:]
 	}
+
+	for _, r := range result {
+		if r == nil {
+			fmt.Println("nil")
+		} else {
+			fmt.Println(*r)
+		}
+	}
+
+	return sliceIntToBT(result)
+}
+
+/*
+func sortedArrayToSlice(nums []int, result []int, idx *int) int {
+	if len(nums) == 0 {
+		return -1
+	} else if len(nums) == 1 {
+		result = append(result, nums[0])
+		*idx++
+		return -1
+	}
+	/*
+	else if len(nums) == 2 {
+		fmt.Println("=====")
+		*result = append(*result, nums[0], nums[1])
+		fmt.Println("=====", result)
+		return
+	}
+	*/
+/*
+	mid := len(nums) / 2
+	//if len(nums) % 2 == 0 {
+	//	mid--
+	//}
+	fmt.Println("---", nums[mid], mid)
+	result = append(result, nums[mid])
+	//fmt.Println(result)
+	left := nums[:mid]
+	sortedArrayToSlice(left, result, )
+	right := nums[mid+1:]
+	//sortedArrayToSlice(right, result)
+
+	return mid
+}
+*/
+
+func appS(arr []int) {
+	arr = append(arr, 1)
+}
+
+func main() {
+	arr := []int{1,3,5,7,8,9}
+	for _, a := range arr {
+		fmt.Println(a)
+		//if idx ==
+		arr = append(arr, 0)
+	}
+
 	fmt.Println(arr)
+
+	tree := sortedArrayToBST([]int{-10,-3,0,5,9})
+	traverBT(tree)
+
+	//tree2 := sortedArrayToBST([]int{-50,-40,30,20,-10,-3,0,5,9,10,20,30,40,50})
+	//(tree2)
+
 	//sliceIntToBT([]int{5,1,4,nil,nil,3,6})
 	//for _, a := range []*int{i(5),i(1),i(4),nil,nil,i(3),i(6)} {
 	//	fmt.Println(a)
@@ -1397,6 +1529,7 @@ func main() {
 	//tree := createNodeBTWithChild([]*int{i(2),i(1),i(3)}, &idx)
 	//idx2 := 0
 	//tree2 := createNodeBTWithChild([]*int{i(5),i(1),i(4),nil,nil,i(3),i(6)}, &idx2)
+	/*
 	idx3 := 0
 	tree3 := createNodeBTWithChild([]*int{i(3),i(1),i(4),nil,nil,i(2)}, &idx3)
 	idx4 := 0
@@ -1407,7 +1540,6 @@ func main() {
 	fmt.Println(isValidBST(tree3), "valid")
 	fmt.Println(isValidBST(tree4), "valid")
 	//res := createNodeBTWithChild([]*int{i(5),i(1),i(4),nil,nil,i(3),i(6)}, &idx)
-
 	traverBT(tree3)
 	traverBT(tree4)
 

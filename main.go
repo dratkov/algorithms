@@ -1505,7 +1505,59 @@ func appS(arr []int) {
 	arr = append(arr, 1)
 }
 
+func comparePalindromePart(left, right []string) bool {
+	for i := 0; i < len(left); i++ {
+		if left[len(left) - 1 - i] != right[i] {
+			return false
+		}
+	}
+
+	return true
+}
+
+func shortestPalindrome(s string) string {
+	arr := strings.Split(s, "")
+	mid := len(arr) / 2
+	left := arr[:mid]
+	right := arr[mid:]
+	midString := ""
+	for i := mid - 1; i >= 0; i-- {
+		if comparePalindromePart(left, right) {
+			break
+		}
+		if len(right) > len(left) {
+			if comparePalindromePart(left, right[1:]) {
+				midString = right[0]
+				right = right[1:]
+				break
+			}
+		}
+		left = left[:len(left)-1]
+		right = append([]string{arr[i]}, right...)
+	}
+
+	if len(left) == 0 {
+		midString = right[0]
+		right = right[1:]
+	}
+
+	for i := len(left); i < len(right); i++ {
+		left = append([]string{right[i]}, left...)
+	}
+
+	res := make([]string, len(left) + len(right) + 1)
+	res = append(res, left...)
+	res = append(res, midString)
+	res = append(res, right...)
+
+	return strings.Join(res, "")
+}
+
 func main() {
+	fmt.Println(shortestPalindrome("aacecaaa"))
+	fmt.Println(shortestPalindrome("abcd"))
+	/*
+	fmt.Println(len("Привет!"), "Привет!")
 	arr := []int{1,3,5,7,8,9}
 	for _, a := range arr {
 		fmt.Println(a)

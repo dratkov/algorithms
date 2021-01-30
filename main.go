@@ -1556,6 +1556,7 @@ func shortestPalindrome(s string) string {
 func main() {
 	fmt.Println(shortestPalindrome("aacecaaa"))
 	fmt.Println(shortestPalindrome("abcd"))
+	
 	/*
 	fmt.Println(len("Привет!"), "Привет!")
 	arr := []int{1,3,5,7,8,9}

@@ -1578,7 +1578,6 @@ func numIslands(grid [][]string) int {
 		for j := 0; j < len(grid[0]); j++ {
 			if grid[i][j] == "1" {
 				numIslandsReplace(grid, i, j)
-				fmt.Println(grid)
 				count++
 			}
 		}

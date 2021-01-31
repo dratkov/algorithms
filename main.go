@@ -368,26 +368,92 @@ func reverse(x int) int {
 	return rev
 }
 
-func binaryToDigit(s string) int {
+func binaryStringToDigit(s string) int {
 	arr := strings.Split(s, "")
 	reverseArrayString(arr)
-	var power, res float64
+	var power, sum int
 	for _, a := range arr {
 		i, _ := strconv.Atoi(a)
-		res += float64(i) * math.Pow(2, power)
+		sum += i * int(math.Pow(2, float64(power)))
 		power++
 	}
 
-	return int(res)
+	if sum >= math.MaxUint16 {
+		sum -= math.MaxUint16 + 1
+	}
+
+
+	return sum
+}
+
+func binarySliceIntToDigit(arr []int) int {
+	sum := 0
+	for i := 0; i < len(arr); i++ {
+		sum += arr[i] * int(math.Pow(2, float64(i)))
+	}
+
+	if sum >= math.MaxUint16 {
+		sum -= math.MaxUint16 + 1
+	}
+
+	return sum
 }
 
 func decimalToBinary(i int) string {
-	a := []string{}
+	var a []string
+	isNegative := i < 0
+	if isNegative {
+		i *= -1
+	}
 	for i > 1 {
 		a = append(a, strconv.Itoa(i % 2))
 		i /= 2
 	}
 	a = append(a, strconv.Itoa(i))
+	// если отрицательное число
+	if isNegative {
+		for len(a) < 16 {
+			a = append(a, "0")
+		}
+
+		for idx, el := range a {
+			if el == "1" {
+				a[idx] = "0"
+			} else {
+				a[idx] = "1"
+			}
+		}
+
+		// прибавляем единицу
+		res := make([]string, 0, len(a) + 1)
+		rest := 0
+		for i := 0; i < len(a); i++ {
+			if i > 0 && rest == 0 {
+				res = append(res, a[i:]...)
+				break
+			}
+			if a[i] == "1" {
+				if rest == 1 {
+					res = append(res, "1")
+				} else {
+					res = append(res, "0")
+					rest = 1
+				}
+			} else {
+				if rest == 1 {
+					res = append(res, "0")
+				} else {
+					res = append(res, "1")
+				}
+			}
+		}
+		if rest == 1 {
+			res = append(res, "1")
+		}
+		reverseArrayString(res)
+
+		return strings.Join(res, "")
+	}
 
 	reverseArrayString(a)
 
@@ -1588,7 +1654,68 @@ func numIslands(grid [][]string) int {
 	return count
 }
 
+func getSum(a int, b int) int {
+	binA := strings.Split(decimalToBinary(a), "")
+	reverseArrayString(binA)
+	binB := strings.Split(decimalToBinary(b), "")
+	reverseArrayString(binB)
+
+	l := len(binA)
+	if len(binB) > l {
+		l = len(binB)
+	}
+	res := make([]int, 0, l + 1)
+
+	rest := 0
+	for i := 0; i < l; i++ {
+		first, second := "0", "0"
+		if len(binA) > i {
+			first = binA[i]
+		}
+		if len(binB) > i {
+			second = binB[i]
+		}
+		if first == "1" && second == "1" {
+			if rest == 1 {
+				res = append(res, 1)
+			} else {
+				res = append(res, 0)
+				rest = 1
+			}
+		} else if (first == "1" && second == "0") || (first == "0" && second == "1") {
+			if rest == 1 {
+				res = append(res, 0)
+			} else {
+				res = append(res, 1)
+			}
+		} else {
+			if rest == 1 {
+				res = append(res, 1)
+				rest = 0
+			} else {
+				res = append(res, 0)
+			}
+		}
+	}
+	if rest == 1 {
+		res = append(res, 1)
+	}
+
+	return binarySliceIntToDigit(res)
+}
+
 func main() {
+	fmt.Println(getSum(3, 1))
+	fmt.Println(getSum(4, 5))
+	fmt.Println(getSum(7, 8))
+	fmt.Println(getSum(7, 8))
+	fmt.Println(getSum(-3, 4))
+	fmt.Println(getSum(-5, 12))
+
+	/*
+	fmt.Println(6 ^ 7, "=")
+	fmt.Println(6 ^ 8, "=")
+
 	fmt.Println(numIslands([][]string{
 		{"1","1","1","1","0"},
 		{"1","1","0","1","0"},

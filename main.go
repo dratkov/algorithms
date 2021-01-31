@@ -1505,14 +1505,18 @@ func appS(arr []int) {
 	arr = append(arr, 1)
 }
 
-func comparePalindromePart(left, right []string) bool {
-	for i := 0; i < len(left); i++ {
-		if left[len(left) - 1 - i] != right[i] {
-			return false
-		}
+func comparePalindromePart(left, right []string) (bool, string) {
+	idx := strings.Index(strings.Join(right, ""), strings.Join(left, ""))
+	midString := ""
+	if idx == -1 {
+		return false, midString
 	}
 
-	return true
+	if idx == 1 {
+		midString = right[0]
+	}
+
+	return true, midString
 }
 
 func shortestPalindrome(s string) string {
@@ -1521,17 +1525,15 @@ func shortestPalindrome(s string) string {
 	left := arr[:mid]
 	right := arr[mid:]
 	midString := ""
+	match := false
 	for i := mid - 1; i >= 0; i-- {
-		if comparePalindromePart(left, right) {
+		if match, midString = comparePalindromePart(left, right); match {
+			if midString != "" {
+				right = right[1:]
+			}
 			break
 		}
-		if len(right) > len(left) {
-			if comparePalindromePart(left, right[1:]) {
-				midString = right[0]
-				right = right[1:]
-				break
-			}
-		}
+
 		left = left[:len(left)-1]
 		right = append([]string{arr[i]}, right...)
 	}
@@ -1601,7 +1603,7 @@ func main() {
 		{"0","0","0","1","1"},
 	}))
 
-	/*
+
 	fmt.Println(shortestPalindrome("aacecaaa"))
 	fmt.Println(shortestPalindrome("abcd"))
 	fmt.Println(shortestPalindrome("aabcd"))

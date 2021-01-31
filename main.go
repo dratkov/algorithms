@@ -1553,10 +1553,60 @@ func shortestPalindrome(s string) string {
 	return strings.Join(res, "")
 }
 
+func numIslandsReplace(grid [][]string, i, j int) {
+	grid[i][j] = "-"
+	if i - 1 >= 0 && grid[i - 1][j] == "1" {
+		numIslandsReplace(grid, i - 1, j)
+	}
+	if j - 1 >= 0 && grid[i][j - 1] == "1" {
+		numIslandsReplace(grid, i, j - 1)
+	}
+	if i + 1 < len(grid) && grid[i + 1][j] == "1" {
+		numIslandsReplace(grid, i + 1, j)
+	}
+	if j + 1 < len(grid[0]) && grid[i][j + 1] == "1" {
+		numIslandsReplace(grid, i, j + 1)
+	}
+}
+
+func numIslands(grid [][]string) int {
+	count := 0
+	if len(grid) == 0 {
+		return count
+	}
+ 	for i := 0; i < len(grid); i++ {
+		for j := 0; j < len(grid[0]); j++ {
+			if grid[i][j] == "1" {
+				numIslandsReplace(grid, i, j)
+				fmt.Println(grid)
+				count++
+			}
+		}
+	}
+
+	return count
+}
+
 func main() {
+	fmt.Println(numIslands([][]string{
+		{"1","1","1","1","0"},
+		{"1","1","0","1","0"},
+		{"1","1","0","0","0"},
+		{"0","0","0","0","0"},
+	}))
+
+	fmt.Println(numIslands([][]string{
+		{"1","1","0","0","0"},
+		{"1","1","0","0","0"},
+		{"0","0","1","0","0"},
+		{"0","0","0","1","1"},
+	}))
+
+	/*
 	fmt.Println(shortestPalindrome("aacecaaa"))
 	fmt.Println(shortestPalindrome("abcd"))
-	
+	fmt.Println(shortestPalindrome("aabcd"))
+
 	/*
 	fmt.Println(len("Привет!"), "Привет!")
 	arr := []int{1,3,5,7,8,9}
